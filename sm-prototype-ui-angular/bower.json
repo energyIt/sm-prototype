@@ -1,0 +1,9 @@
+{
+  "name": "sm",
+  "dependencies": {
+    "angular": "~1.3.20",
+    "angular-spring-data-rest": "~0.4.3",
+    "bootstrap-css-only": "~3.3.5",
+    "lodash": "~3.10.1"
+  }
+}

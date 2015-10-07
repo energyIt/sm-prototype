@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="libs/bootstrap-css-only/css/bootstrap.min.css"/>
+</head>
+<body ng-app="myApp">
+<div class="container" ng-controller="UserGroupController">
+    <div class="page-header">
+        <h1>User Groups</h1>
+    </div>
+    <div class="form-group btn-group-sm">
+        <button class="btn btn-info" type="button" title="Add" ng-click="showEditForm(null)">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </div>
+    <div class="alert alert-info" role="alert" ng-hide="items && items.length > 0">
+        There are no items yet.
+    </div>
+
+    <table class="table table-striped" ng-hide="!items || items.length == 0">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID2</th>
+            <th>ID3</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in items">
+            <td>{{item.id}}</td>
+            <td>{{item.id2}}</td>
+            <td>{{item.id3}}</td>
+            <td>{{item.name}}</td>
+            <td class="btn-group-sm">
+                <button class="btn btn-success" type="button" title="Edit" ng-click="showEditForm(item)">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+                <button class="btn btn-danger" type="button" title="Delete" ng-click="deleteItem(item)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <hr/>
+
+    <form name="userGroupForm" class="form-horizontal" role="form" ng-submit="addItem(id, id2, id3, name)" novalidate>
+        <div class="input-group" ng-show="editFormVisible">
+            <div class="form-group" ng-class="{'has-error': userGroupForm.id.$invalid}">
+                <label class="col-sm-3 ">Id:</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="id" name="id" placeholder="Id..."
+                           ng-minlength="16" ng-maxlength="16" required/>
+
+                    <div ng-messages="userGroupForm.id.$error">
+                        <p ng-message="minlength">ID is too short.</p>
+
+                        <p ng-message="maxlength">ID is too long.</p>
+
+                        <p ng-message="required">ID is required.</p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': userGroupForm.id2.$invalid}">
+                <label class="col-sm-3 ">Id2:</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="id2" placeholder="Id2..."/>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': userGroupForm.id3.$invalid}">
+                <label class="col-sm-3 ">Id3:</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="id3" placeholder="Id3..."/>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{'has-error': userGroupForm.name.$invalid}">
+                <label class="col-sm-3 ">Name:</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-model="name" name="name" placeholder="Name... " required/>
+                </div>
+            </div>
+            <div class="btn-group-sm pull-right">
+                <button class="btn btn-success" type="submit" title="Save" ng-show="selectedItem == null">
+                    <span class="glyphicon glyphicon-ok"> Save</span>
+                </button>
+                <button class="btn btn-success" type="button" title="Save" ng-show="selectedItem != null" ng-click="updateItem(id2, id3, name)">
+                    <span class="glyphicon glyphicon-ok"> Save</span>
+                </button>
+                <button class="btn btn-default" type="button" title="Close" ng-click="closeEditForm()">
+                    <span class="glyphicon glyphicon-remove"> Close</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="libs/angular/angular.min.js"></script>
+<script type="text/javascript" src="libs/angular-resource/angular-resource.min.js"></script>
+<script type="text/javascript" src="libs/angular-spring-data-rest/dist/angular-spring-data-rest.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-messages.js"></script>
+<script type="text/javascript" src="libs/lodash/lodash.min.js"></script>
+<script type="text/javascript" src="app/app.js"></script>
+<script type="text/javascript" src="app/controllers.js"></script>
+<script type="text/javascript" src="app/ugServices.js"></script>
+</body>
+</html>
