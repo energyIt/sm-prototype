@@ -1,4 +1,4 @@
-var CommentBox = React.createClass({
+var UserGrid = React.createClass({
     render: function() {
         return (
             <div className="commentBox">
@@ -9,6 +9,6 @@ var CommentBox = React.createClass({
 });
 
 ReactDOM.render(
-    <CommentBox />,
+    <UserGrid />,
     document.getElementById('react')
 )
