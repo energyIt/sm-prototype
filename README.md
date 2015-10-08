@@ -1,6 +1,6 @@
 # Introduciton
 
-This project should serve as an example of a spring-data-rest application with two uis : angularjs 1.x and js (TODO). 
+This project should serve as an example of a spring-data-rest application with two uis : angularjs 1.x and react.js 0.14. 
 
 # Tutorial
 

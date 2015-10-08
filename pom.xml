@@ -10,6 +10,7 @@
     <modules>
         <module>sm-prototype-core</module>
         <module>sm-prototype-ui-angular</module>
+        <module>sm-prototype-ui-react</module>
     </modules>
 
     <parent>
