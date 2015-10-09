@@ -110,34 +110,10 @@ var UserForm = React.createClass({
             return (
                 <form className="form-horizontal" onSubmit={this.handleSubmit}>
                     <div className="input-group">
-                        <div className="form-group">
-                            <label className="col-sm-3 ">ID</label>
-
-                            <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id..." ref="id"/>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="col-sm-3 ">ID2</label>
-
-                            <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id2..." ref="id2"/>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="col-sm-3 ">ID3</label>
-
-                            <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id3..." ref="id3"/>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="col-sm-3 ">NAME</label>
-
-                            <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="name..." ref="name"/>
-                            </div>
-                        </div>
+                        <TextField label="ID" placeholder="id..." ref="id" />
+                        <TextField label="ID2" placeholder="id2..." ref="id2" />
+                        <TextField label="ID3" placeholder="id3..." ref="id3" />
+                        <TextField label="NAME" placeholder="name..." ref="name" />
                         <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
                             <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
                         </button>
@@ -148,6 +124,18 @@ var UserForm = React.createClass({
         }
     }
 });
+
+var TextField = React.createClass({
+    render: function() {
+        return (
+            <div className="form-group">
+                <label className="col-sm-3 ">{this.props.label}</label>
+                <div className="col-sm-9">
+                    <input type="text" className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
+                </div>
+            </div>)
+    }
+})
 
 ReactDOM.render(
     <UserWrapper></UserWrapper>,
