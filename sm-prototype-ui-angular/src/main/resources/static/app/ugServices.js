@@ -21,12 +21,18 @@
                     });
                 };
             } else {
-                item.save = function(callback) {
+                item.save = function(successCallback, badRequestCallback) {
                     UserGroup.resources.save(item, function(item, headers) {
                         var deferred = $http.get(headers().location);
                         return SpringDataRestAdapter.process(deferred).then(function(newItem) {
-                            callback && callback(new UserGroup(newItem));
+                            successCallback && successCallback(new UserGroup(newItem));
                         });
+                    }, function(resp){
+                        var status = resp.status;
+                        var errors = resp.data.errors;
+                        badRequestCallback && badRequestCallback(errors);
+                    }, function() {
+                        var gotNoClew = "";
                     });
                 };
             }
@@ -49,6 +55,20 @@
         return UserGroup;
     };
 
+    var ServerValidationHandler = function($parse) {
+        this.showValidationErrors = function($scope, formName, errors) {
+            for (var i =0; i< errors.length; i++) {
+                var error = errors[i];
+                var fieldName = error.property;
+                var serverMessage = $parse(formName+'.'+ fieldName+'.$error.serverMessage');
+                $scope.userGroupForm[fieldName].$setValidity("serverMessage", false, $scope[formName]);
+                serverMessage.assign($scope, error.message);
+            }
+        }
+    };
+
     UserGroupFactory.$inject = ['$http', 'SpringDataRestAdapter'];
+    ServerValidationHandler.$inject = ['$parse'];
     angular.module("myApp.services").factory("UserGroup", UserGroupFactory);
+    angular.module("myApp.services").service("serverValidationHandler", ServerValidationHandler);
 }(angular));
