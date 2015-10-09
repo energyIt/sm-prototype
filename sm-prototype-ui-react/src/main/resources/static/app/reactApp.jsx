@@ -88,13 +88,54 @@ var UserWrapper = React.createClass({
                         <span className="glyphicon glyphicon-plus"></span>
                     </button>
                 </div>
-                <UserGrid data={data} />
+                <UserGrid></UserGrid>
+                <UserForm></UserForm>
             </div>
         );
     }
 });
 
+var UserForm = React.createClass({
+    handleSubmit: function(e) {
+        console.log(e);
+    },
+    render: function() {
+        return (
+                <form className="form-horizontal" onSubmit={this.handleSubmit}>
+                    <div className="input-group">
+                        <div className="form-group">
+                            <label className="col-sm-3 ">ID</label>
+                            <div className="col-sm-9">
+                                <input type="text" className="form-control" placeholder="id..." ref="id" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-3 ">ID2</label>
+                            <div className="col-sm-9">
+                                <input type="text" className="form-control" placeholder="id2..." ref="id2" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-3 ">ID3</label>
+                            <div className="col-sm-9">
+                                <input type="text" className="form-control" placeholder="id3..." ref="id3" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-3 ">NAME</label>
+                            <div className="col-sm-9">
+                                <input type="text" className="form-control" placeholder="name..." ref="name" />
+                            </div>
+                        </div>
+                        <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
+                            <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
+                        </button>
+                    </div>
+                </form>)
+    }
+});
+
 ReactDOM.render(
-    <UserWrapper />,
+    <UserWrapper></UserWrapper>,
     document.getElementById('react')
 );
