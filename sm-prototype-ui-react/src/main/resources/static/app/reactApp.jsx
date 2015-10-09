@@ -30,31 +30,13 @@ var EmptyGrid = React.createClass({
 })
 
 var UserGrid = React.createClass({
-    getInitialState: function() {
-        return {data: []}
-    },
-    componentDidMount: function() {
-        $.ajax({
-            url: 'api/userGroup',
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                console.log(data);
-                this.setState({data: data._embedded.userGroup});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
-    },
     render: function() {
-        if( (this.state.data || []).length === 0 ) {
+        if( (this.props.data || []).length === 0 ) {
             return (
                 <EmptyGrid></EmptyGrid>
             );
         }
-        console.log('user grid render: ' + this.state.data)
-        var rows = this.state.data.map( function( row ) {
+        var rows = this.props.data.map( function( row ) {
             return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
         });
         return (
@@ -78,10 +60,27 @@ var UserGrid = React.createClass({
 
 var UserWrapper = React.createClass({
     getInitialState: function() {
-        return {};
+        return {data: []}
+    },
+    componentDidMount: function() {
+        $.ajax({
+            url: 'api/userGroup',
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log(data);
+                this.setState({data: data._embedded.userGroup});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
     },
     addNew: function() {
         this.setState({displayForm: true});
+    },
+    onFormSubmit: function( data ) {
+        console.log(data)
     },
     render: function() {
         return (
@@ -94,8 +93,8 @@ var UserWrapper = React.createClass({
                         <span className="glyphicon glyphicon-plus"></span>
                     </button>
                 </div>
-                <UserGrid></UserGrid>
-                <UserForm display={this.state.displayForm}></UserForm>
+                <UserGrid data={this.state.data}></UserGrid>
+                <UserForm display={this.state.displayForm} onFormSubmit={this.onFormSubmit}></UserForm>
             </div>
         );
     }
@@ -104,11 +103,13 @@ var UserWrapper = React.createClass({
 var UserForm = React.createClass({
     handleSubmit: function(e) {
         console.log(e);
+        console.log(this.refs.name);
+        this.props.onFormSubmit({blabla: this.refs.name});
     },
     render: function() {
         if( this.props.display === true ) {
             return (
-                <form className="form-horizontal" onSubmit={this.handleSubmit}>
+                <form className="form-horizontal">
                     <div className="input-group">
                         <TextField label="ID" placeholder="id..." ref="id" />
                         <TextField label="ID2" placeholder="id2..." ref="id2" />
