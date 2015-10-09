@@ -104,8 +104,28 @@ var UserWrapper = React.createClass({
 });
 
 var UserForm = React.createClass({
-    handleSubmit: function(e) {
+    getInitialState: function() {
+        return { valIssue: {}}
+    },
+    handleSubmit: function() {
         this.props.onFormSubmit(this.formValue);
+    },
+    validationRules: {
+        'id': function(val) {
+            return {result: (val || '').length === 16, msg: 'Size has to be 16'};
+        }
+    },
+    validate: function( changeMap ) {
+        var me = this;
+        var validationResult = true;
+        for( var key in changeMap ) {
+            var valResult = me.validationRules[key](changeMap[key]);
+            var valIssue = {};
+            valIssue[key] = valResult.result ? null : valResult.msg
+            me.setState( { valIssue: valIssue });
+            validationResult = valResult.result && validationResult;
+        }
+        return validationResult;
     },
     formValue: {},
     render: function() {
@@ -113,7 +133,7 @@ var UserForm = React.createClass({
             return (
                 <form className="form-horizontal">
                     <div className="input-group">
-                        <TextField label="ID" placeholder="id..." k="id" data={this.formValue} />
+                        <TextField label="ID" placeholder="id..." k="id" data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id']}/>
                         <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} />
                         <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} />
                         <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} />
@@ -130,14 +150,20 @@ var UserForm = React.createClass({
 
 var TextField = React.createClass({
     valueChanged: function(e) {
-        this.props.data[this.props.k] = e.target.value;
+        var validatable = {};
+        validatable[this.props.k] = e.target.value;
+        if( !this.props.validate || this.props.validate(validatable) ) {
+            this.props.data[this.props.k] = e.target.value;
+        }
     },
     render: function() {
+        var validationError = (this.props.validationError || '');
         return (
             <div className="form-group">
                 <label className="col-sm-3 ">{this.props.label}</label>
                 <div className="col-sm-9">
                     <input type="text" onChange={this.valueChanged} className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
+                    {validationError}
                 </div>
             </div>)
     }
