@@ -1,8 +1,3 @@
-var data = [
-    { id1: 'id1', id2: 'id2', id3: 'id3', name: 'name'},
-    { id1: 'ala', id2: 'ma', id3: 'kota', name: 'bolka'},
-]
-
 var UserRow = React.createClass({
     render: function() {
         return (
@@ -35,14 +30,32 @@ var EmptyGrid = React.createClass({
 })
 
 var UserGrid = React.createClass({
+    getInitialState: function() {
+        return {data: []}
+    },
+    componentDidMount: function() {
+        $.ajax({
+            url: 'api/userGroup',
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log(data);
+                this.setState({data: data._embedded.userGroup});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
     render: function() {
-        if( (this.props.data || []).length === 0 ) {
+        if( (this.state.data || []).length === 0 ) {
             return (
                 <EmptyGrid></EmptyGrid>
             );
         }
-        var rows = this.props.data.map( function( row ) {
-            return ( <UserRow key={row.id1} id1={row.id1} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
+        console.log('user grid render: ' + this.state.data)
+        var rows = this.state.data.map( function( row ) {
+            return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
         });
         return (
             <table className="table table-striped">

@@ -11,6 +11,8 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import sm.model.User;
 import sm.model.UserGroup;
+import sm.repository.UserGroupRepository;
+import sm.repository.UserRepository;
 import sm.validation.BeforeCreateUserValidator;
 
 @SpringBootApplication
@@ -23,9 +25,26 @@ public class Application extends RepositoryRestMvcConfiguration implements Comma
     @Autowired
     private BeforeCreateUserValidator beforeCreateUserValidator;
 
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+
     @Override
     public void run(String... strings) throws Exception {
         //  some init here
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("name");
+        userGroup.setId("1234567890123456");
+        userGroup.setId2("id2");
+        userGroup.setId3("id3");
+
+        UserGroup userGroup1 = new UserGroup();
+        userGroup1.setName("blabla");
+        userGroup1.setId("6543210987654321");
+        userGroup1.setId2("ID2");
+        userGroup1.setId3("ID3");
+
+        userGroupRepository.save(userGroup);
+        userGroupRepository.save(userGroup1);
     }
 
     /**

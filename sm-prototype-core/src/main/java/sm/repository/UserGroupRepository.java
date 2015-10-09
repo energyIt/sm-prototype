@@ -15,7 +15,7 @@ import sm.model.UserGroup;
  * </pre>
  *
  */
-@PreAuthorize("hasRole('ROLE_USER')")
+//@PreAuthorize("hasRole('ROLE_USER')")
 @RepositoryRestResource(collectionResourceRel = "userGroup", path = "userGroup")
 public interface UserGroupRepository extends PagingAndSortingRepository<UserGroup, String> {
 
