@@ -77,6 +77,12 @@ var UserGrid = React.createClass({
 });
 
 var UserWrapper = React.createClass({
+    getInitialState: function() {
+        return {};
+    },
+    addNew: function() {
+        this.setState({displayForm: true});
+    },
     render: function() {
         return (
             <div>
@@ -84,12 +90,12 @@ var UserWrapper = React.createClass({
                     <h1>User Groups</h1>
                 </div>
                 <div className="form-group btn-group-sm">
-                    <button className="btn btn-info" type="button" title="Add">
+                    <button className="btn btn-info" type="button" title="Add" onClick={this.addNew}>
                         <span className="glyphicon glyphicon-plus"></span>
                     </button>
                 </div>
                 <UserGrid></UserGrid>
-                <UserForm></UserForm>
+                <UserForm display={this.state.displayForm}></UserForm>
             </div>
         );
     }
@@ -100,31 +106,36 @@ var UserForm = React.createClass({
         console.log(e);
     },
     render: function() {
-        return (
+        if( this.props.display === true ) {
+            return (
                 <form className="form-horizontal" onSubmit={this.handleSubmit}>
                     <div className="input-group">
                         <div className="form-group">
                             <label className="col-sm-3 ">ID</label>
+
                             <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id..." ref="id" />
+                                <input type="text" className="form-control" placeholder="id..." ref="id"/>
                             </div>
                         </div>
                         <div className="form-group">
                             <label className="col-sm-3 ">ID2</label>
+
                             <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id2..." ref="id2" />
+                                <input type="text" className="form-control" placeholder="id2..." ref="id2"/>
                             </div>
                         </div>
                         <div className="form-group">
                             <label className="col-sm-3 ">ID3</label>
+
                             <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="id3..." ref="id3" />
+                                <input type="text" className="form-control" placeholder="id3..." ref="id3"/>
                             </div>
                         </div>
                         <div className="form-group">
                             <label className="col-sm-3 ">NAME</label>
+
                             <div className="col-sm-9">
-                                <input type="text" className="form-control" placeholder="name..." ref="name" />
+                                <input type="text" className="form-control" placeholder="name..." ref="name"/>
                             </div>
                         </div>
                         <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
@@ -132,6 +143,9 @@ var UserForm = React.createClass({
                         </button>
                     </div>
                 </form>)
+        } else {
+            return null;
+        }
     }
 });
 
