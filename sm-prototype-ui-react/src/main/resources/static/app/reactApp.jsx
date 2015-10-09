@@ -62,7 +62,7 @@ var UserWrapper = React.createClass({
     getInitialState: function() {
         return {data: []}
     },
-    componentDidMount: function() {
+    loadData: function() {
         $.ajax({
             url: 'api/userGroup',
             dataType: 'json',
@@ -75,6 +75,9 @@ var UserWrapper = React.createClass({
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
         });
+    },
+    componentDidMount: function() {
+        this.loadData();
     },
     addNew: function() {
         this.setState({displayForm: true});
@@ -102,19 +105,18 @@ var UserWrapper = React.createClass({
 
 var UserForm = React.createClass({
     handleSubmit: function(e) {
-        console.log(e);
-        console.log(this.refs.name);
-        this.props.onFormSubmit({blabla: this.refs.name});
+        this.props.onFormSubmit(this.formValue);
     },
+    formValue: {},
     render: function() {
         if( this.props.display === true ) {
             return (
                 <form className="form-horizontal">
                     <div className="input-group">
-                        <TextField label="ID" placeholder="id..." ref="id" />
-                        <TextField label="ID2" placeholder="id2..." ref="id2" />
-                        <TextField label="ID3" placeholder="id3..." ref="id3" />
-                        <TextField label="NAME" placeholder="name..." ref="name" />
+                        <TextField label="ID" placeholder="id..." k="id" data={this.formValue} />
+                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} />
+                        <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} />
+                        <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} />
                         <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
                             <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
                         </button>
@@ -127,12 +129,15 @@ var UserForm = React.createClass({
 });
 
 var TextField = React.createClass({
+    valueChanged: function(e) {
+        this.props.data[this.props.k] = e.target.value;
+    },
     render: function() {
         return (
             <div className="form-group">
                 <label className="col-sm-3 ">{this.props.label}</label>
                 <div className="col-sm-9">
-                    <input type="text" className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
+                    <input type="text" onChange={this.valueChanged} className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
                 </div>
             </div>)
     }
