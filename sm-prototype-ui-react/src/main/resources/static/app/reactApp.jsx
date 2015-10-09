@@ -24,8 +24,23 @@ var UserRow = React.createClass({
     }
 });
 
+var EmptyGrid = React.createClass({
+    render: function() {
+        return (
+            <div className="alert alert-info" role="alert">
+                There are no items yet.
+            </div>
+        )
+    }
+})
+
 var UserGrid = React.createClass({
     render: function() {
+        if( (this.props.data || []).length === 0 ) {
+            return (
+                <EmptyGrid></EmptyGrid>
+            );
+        }
         var rows = this.props.data.map( function( row ) {
             return ( <UserRow key={row.id1} id1={row.id1} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
         });
