@@ -83,7 +83,22 @@ var UserWrapper = React.createClass({
         this.setState({displayForm: true});
     },
     onFormSubmit: function( data ) {
-        console.log(data)
+        debugger;
+        var me = this;
+        $.ajax({
+            url: 'api/userGroup',
+            dataType: 'json',
+            type: 'POST',
+            data: JSON.stringify(data),//{ id: '1234567890123450', id3: '1234567890123456', name: 'blabbb'},
+            contentType: "application/json;",
+            success: function() {
+                console.log('success in POST');
+                me.loadData();
+            },
+            error: function() {
+                console.error('error during POST');
+            }
+        })
     },
     render: function() {
         return (
