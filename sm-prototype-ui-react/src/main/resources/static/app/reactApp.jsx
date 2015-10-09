@@ -1,3 +1,8 @@
+var data = [
+    { id1: 'id1', id2: 'id2', id3: 'id3', name: 'name'},
+    { id1: 'ala', id2: 'ma', id3: 'kota', name: 'bolka'},
+]
+
 var UserRow = React.createClass({
     render: function() {
         return (
@@ -21,6 +26,9 @@ var UserRow = React.createClass({
 
 var UserGrid = React.createClass({
     render: function() {
+        var rows = this.props.data.map( function( row ) {
+            return ( <UserRow key={row.id1} id1={row.id1} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
+        });
         return (
             <table className="table table-striped">
                 <thead>
@@ -33,15 +41,32 @@ var UserGrid = React.createClass({
                     </tr>
                 </thead>
                 <tbody>
-                    <UserRow id1="id" id2="id2" id3="id3" name="name"></UserRow>
-                    <UserRow id1="ala" id2="ma" id3="kota" name="bolka"></UserRow>
+                    {rows}
                 </tbody>
             </table>
         );
     }
 });
 
+var UserWrapper = React.createClass({
+    render: function() {
+        return (
+            <div>
+                <div className="page-header">
+                    <h1>User Groups</h1>
+                </div>
+                <div className="form-group btn-group-sm">
+                    <button className="btn btn-info" type="button" title="Add">
+                        <span className="glyphicon glyphicon-plus"></span>
+                    </button>
+                </div>
+                <UserGrid data={data} />
+            </div>
+        );
+    }
+});
+
 ReactDOM.render(
-    <UserGrid />,
+    <UserWrapper />,
     document.getElementById('react')
-)
+);
