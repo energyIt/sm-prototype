@@ -83,15 +83,18 @@ var UserWrapper = React.createClass({
         this.setState({displayForm: true});
     },
     onFormSubmit: function( data ) {
-        debugger;
         var me = this;
         $.ajax({
             url: 'api/userGroup',
-            dataType: 'json',
+            dataType: 'text',
             type: 'POST',
             data: JSON.stringify(data),//{ id: '1234567890123450', id3: '1234567890123456', name: 'blabbb'},
             contentType: "application/json;",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Basic ' + btoa('SMADMIN01:test01'));
+            },
             success: function() {
+                debugger;
                 console.log('success in POST');
                 me.loadData();
             },
