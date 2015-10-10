@@ -94,7 +94,6 @@ var UserWrapper = React.createClass({
                 xhr.setRequestHeader('Authorization', 'Basic ' + btoa('SMADMIN01:test01'));
             },
             success: function() {
-                debugger;
                 console.log('success in POST');
                 me.loadData();
             },
