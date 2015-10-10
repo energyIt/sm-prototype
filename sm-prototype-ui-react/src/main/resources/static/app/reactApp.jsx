@@ -10,7 +10,7 @@ var UserRow = React.createClass({
                     <button className="btn btn-success" type="button" title="Edit">
                         <span className="glyphicon glyphicon-edit"></span>
                     </button>
-                    <button className="btn btn-danger" type="button" title="Delete">
+                    <button className="btn btn-danger" type="button" title="Delete" onClick={this.props.onDelete}>
                         <span className="glyphicon glyphicon-trash"></span>
                     </button>
                 </td>
@@ -31,13 +31,14 @@ var EmptyGrid = React.createClass({
 
 var UserGrid = React.createClass({
     render: function() {
+        var me = this;
         if( (this.props.data || []).length === 0 ) {
             return (
                 <EmptyGrid></EmptyGrid>
             );
         }
         var rows = this.props.data.map( function( row ) {
-            return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} ></UserRow> );
+            return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} onDelete={me.props.onDelete.bind(me, row.id)}></UserRow> );
         });
         return (
             <table className="table table-striped">
@@ -68,8 +69,8 @@ var UserWrapper = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log(data);
-                this.setState({data: data._embedded.userGroup});
+                console.log('loaded data: ' + data);
+                this.setState({data: !data._embedded ? [] : data._embedded.userGroup});
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -88,17 +89,37 @@ var UserWrapper = React.createClass({
             url: 'api/userGroup',
             dataType: 'text',
             type: 'POST',
-            data: JSON.stringify(data),//{ id: '1234567890123450', id3: '1234567890123456', name: 'blabbb'},
+            data: JSON.stringify(data),
             contentType: "application/json;",
             beforeSend: function(xhr) {
                 xhr.setRequestHeader('Authorization', 'Basic ' + btoa('SMADMIN01:test01'));
             },
             success: function() {
                 console.log('success in POST');
+                me.setState({displayForm: false});
                 me.loadData();
             },
             error: function() {
                 console.error('error during POST');
+            }
+        })
+    },
+    onItemDelete: function( id ) {
+        var me = this;
+        console.log('to be deleted: ' + id );
+        $.ajax({
+            url: 'api/userGroup/'+id,
+            dataType: 'text',
+            type: 'DELETE',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Basic ' + btoa('SMADMIN01:test01'));
+            },
+            success: function() {
+                console.log('success in DELETE');
+                me.loadData();
+            },
+            error: function() {
+                console.error('error during DELETE');
             }
         })
     },
@@ -113,7 +134,7 @@ var UserWrapper = React.createClass({
                         <span className="glyphicon glyphicon-plus"></span>
                     </button>
                 </div>
-                <UserGrid data={this.state.data}></UserGrid>
+                <UserGrid data={this.state.data} onDelete={this.onItemDelete}></UserGrid>
                 <UserForm display={this.state.displayForm} onFormSubmit={this.onFormSubmit}></UserForm>
             </div>
         );
