@@ -7,7 +7,7 @@ var UserRow = React.createClass({
                 <td>{this.props.id3}</td>
                 <td>{this.props.name}</td>
                 <td className="btn-group-sm">
-                    <button className="btn btn-success" type="button" title="Edit">
+                    <button className="btn btn-success" type="button" title="Edit" onClick={this.props.onEdit}>
                         <span className="glyphicon glyphicon-edit"></span>
                     </button>
                     <button className="btn btn-danger" type="button" title="Delete" onClick={this.props.onDelete}>
@@ -38,7 +38,7 @@ var UserGrid = React.createClass({
             );
         }
         var rows = this.props.data.map( function( row ) {
-            return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} onDelete={me.props.onDelete.bind(me, row.id)}></UserRow> );
+            return ( <UserRow key={row.id} id1={row.id} id2={row.id2} id3={row.id3} name={row.name} onDelete={me.props.onDelete.bind(me, row.id)} onEdit={me.props.onEdit.bind(me, row.id)}></UserRow> );
         });
         return (
             <table className="table table-striped">
@@ -80,15 +80,21 @@ var UserWrapper = React.createClass({
     componentDidMount: function() {
         this.loadData();
     },
-    addNew: function() {
-        this.setState({displayForm: true});
-    },
-    onFormSubmit: function( data ) {
+    onFormSubmit: function( data, mode ) {
+        debugger;
         var me = this;
+        if( mode === 'ADD' ) {
+            var url = 'api/userGroup';
+            var type = 'POST';
+        } else if( mode === 'EDIT' ) {
+            var url = 'api/userGroup/'+data['id'];
+            var type = 'PATCH';
+        }
+
         $.ajax({
-            url: 'api/userGroup',
+            url: url,
+            type: type,
             dataType: 'text',
-            type: 'POST',
             data: JSON.stringify(data),
             contentType: "application/json;",
             beforeSend: function(xhr) {
@@ -104,9 +110,28 @@ var UserWrapper = React.createClass({
             }
         })
     },
+    addNew: function() {
+        this.setState({displayForm: true, initialData: {}, mode: 'ADD'});
+    },
+    onItemEdit: function( id ) {
+        var me = this;
+        $.ajax({
+            url: 'api/userGroup/'+id,
+            dataType: 'json',
+            type: 'GET',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Authorization', 'Basic ' + btoa('SMADMIN01:test01'));
+            },
+            success: function(data) {
+                me.setState({displayForm: true, initialData: data, mode: 'EDIT' });
+            },
+            error: function() {
+                console.error('error during DELETE');
+            }
+        });
+    },
     onItemDelete: function( id ) {
         var me = this;
-        console.log('to be deleted: ' + id );
         $.ajax({
             url: 'api/userGroup/'+id,
             dataType: 'text',
@@ -116,6 +141,7 @@ var UserWrapper = React.createClass({
             },
             success: function() {
                 console.log('success in DELETE');
+                me.setState({displayForm: false});
                 me.loadData();
             },
             error: function() {
@@ -134,8 +160,8 @@ var UserWrapper = React.createClass({
                         <span className="glyphicon glyphicon-plus"></span>
                     </button>
                 </div>
-                <UserGrid data={this.state.data} onDelete={this.onItemDelete}></UserGrid>
-                <UserForm display={this.state.displayForm} onFormSubmit={this.onFormSubmit}></UserForm>
+                <UserGrid data={this.state.data} onDelete={this.onItemDelete} onEdit={this.onItemEdit}></UserGrid>
+                <UserForm display={this.state.displayForm} mode={this.state.mode} formValue={this.state.initialData} onFormSubmit={this.onFormSubmit}></UserForm>
             </div>
         );
     }
@@ -146,12 +172,15 @@ var UserForm = React.createClass({
         return { valIssue: {}}
     },
     handleSubmit: function() {
-        this.props.onFormSubmit(this.formValue);
+        this.props.onFormSubmit(this.formValue, this.props.mode);
     },
     validationRules: {
         'id': function(val) {
             return {result: (val || '').length === 16, msg: 'Size has to be 16'};
-        }
+        },
+        'id2': function() { return { result: true } },
+        'id3': function() { return { result: true } },
+        'name': function() { return { result: true } }
     },
     validate: function( changeMap ) {
         var me = this;
@@ -168,13 +197,15 @@ var UserForm = React.createClass({
     formValue: {},
     render: function() {
         if( this.props.display === true ) {
+            this.formValue = this.props.formValue;
+            debugger;
             return (
                 <form className="form-horizontal">
                     <div className="input-group">
-                        <TextField label="ID" placeholder="id..." k="id" data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id']}/>
-                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} />
-                        <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} />
-                        <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} />
+                        <TextField label="ID" placeholder="id..." k="id" disabled={this.props.mode == 'EDIT'} data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id']}/>
+                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} />
+                        <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} validate={this.validate} />
+                        <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} validate={this.validate} />
                         <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
                             <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
                         </button>
@@ -190,9 +221,8 @@ var TextField = React.createClass({
     valueChanged: function(e) {
         var validatable = {};
         validatable[this.props.k] = e.target.value;
-        if( !this.props.validate || this.props.validate(validatable) ) {
-            this.props.data[this.props.k] = e.target.value;
-        }
+        !this.props.validate || this.props.validate(validatable)
+        this.props.data[this.props.k] = e.target.value;
     },
     render: function() {
         var validationError = (this.props.validationError || '');
@@ -200,7 +230,7 @@ var TextField = React.createClass({
             <div className="form-group">
                 <label className="col-sm-3 ">{this.props.label}</label>
                 <div className="col-sm-9">
-                    <input type="text" onChange={this.valueChanged} className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
+                    <input type="text" disabled={this.props.disabled} value={this.props.data[this.props.k]} onChange={this.valueChanged} className="form-control" placeholder={this.props.placeholder} ref={this.props.ref}/>
                     {validationError}
                 </div>
             </div>)
