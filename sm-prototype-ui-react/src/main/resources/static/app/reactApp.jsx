@@ -217,7 +217,7 @@ var UserForm = React.createClass({
                 <form className="form-horizontal">
                     <div className="input-group">
                         <TextField label="ID" placeholder="id..." k="id" disabled={this.props.mode == 'EDIT'} data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id']}/>
-                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} />
+                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id2']}/>
                         <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} validate={this.validate} />
                         <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} validate={this.validate} />
                         <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit} disabled={!this.state.validationResult}>
