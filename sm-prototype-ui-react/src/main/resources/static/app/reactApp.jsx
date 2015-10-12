@@ -80,7 +80,10 @@ var UserWrapper = React.createClass({
     componentDidMount: function() {
         this.loadData();
     },
-    onFormSubmit: function( data, mode ) {
+    addNew: function() {
+        this.setState({displayForm: true, initialData: {}, mode: 'ADD'});
+    },
+    onFormSubmit: function( data, mode, form ) {
         var me = this;
         if( mode === 'ADD' ) {
             var url = 'api/userGroup';
@@ -106,11 +109,11 @@ var UserWrapper = React.createClass({
             },
             error: function() {
                 console.error('error during POST');
+            },
+            statusCode: {
+                400: me.handleBackendValidation( form )
             }
         })
-    },
-    addNew: function() {
-        this.setState({displayForm: true, initialData: {}, mode: 'ADD'});
     },
     onItemEdit: function( id ) {
         var me = this;
@@ -148,6 +151,14 @@ var UserWrapper = React.createClass({
             }
         })
     },
+    handleBackendValidation: function( form ) {
+        return function(data) {
+            form.applyValidation(false, _.reduce( JSON.parse(data.responseText).errors, function( memo, item ) {
+                memo[item.property] = item.message;
+                return memo;
+            }, {}));
+        }
+    },
     render: function() {
         return (
             <div>
@@ -171,30 +182,32 @@ var UserForm = React.createClass({
         return { valIssue: {}}
     },
     handleSubmit: function() {
-        this.props.onFormSubmit(this.formValue, this.props.mode);
+        this.props.onFormSubmit(this.formValue, this.props.mode, this);
     },
     validationRules: {
         'id': function(val) {
-            return {result: (val || '').length === 16, msg: 'Size has to be 16'};
+            return {result: (val || '').length === 3, msg: 'Size has to be 3 (to invoke backend validation)'};
         },
         'id2': function() { return { result: true } },
         'id3': function() { return { result: true } },
         'name': function() { return { result: true } }
     },
     validate: function() {
-        var me = this;
         var validationResult = true;
         var valIssue = {};
         for( var key in this.formValue ) {
-            var validationRule = me.validationRules[key];
+            var validationRule = this.validationRules[key];
             if( validationRule ) {
                 var valResult = validationRule(this.formValue[key]);
                 valIssue[key] = valResult.result ? null : valResult.msg
                 validationResult = valResult.result && validationResult;
             }
         }
-        me.setState( {validationResult: validationResult, valIssue: valIssue});
+        this.applyValidation(validationResult, valIssue);
         return validationResult;
+    },
+    applyValidation: function(validationResult, valIssue ) {
+        this.setState( {validationResult: validationResult, valIssue: valIssue});
     },
     formValue: {},
     render: function() {
