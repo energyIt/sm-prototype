@@ -81,7 +81,6 @@ var UserWrapper = React.createClass({
         this.loadData();
     },
     onFormSubmit: function( data, mode ) {
-        debugger;
         var me = this;
         if( mode === 'ADD' ) {
             var url = 'api/userGroup';
@@ -182,23 +181,25 @@ var UserForm = React.createClass({
         'id3': function() { return { result: true } },
         'name': function() { return { result: true } }
     },
-    validate: function( changeMap ) {
+    validate: function() {
         var me = this;
         var validationResult = true;
-        for( var key in changeMap ) {
-            var valResult = me.validationRules[key](changeMap[key]);
-            var valIssue = {};
-            valIssue[key] = valResult.result ? null : valResult.msg
-            me.setState( { valIssue: valIssue });
-            validationResult = valResult.result && validationResult;
+        var valIssue = {};
+        for( var key in this.formValue ) {
+            var validationRule = me.validationRules[key];
+            if( validationRule ) {
+                var valResult = validationRule(this.formValue[key]);
+                valIssue[key] = valResult.result ? null : valResult.msg
+                validationResult = valResult.result && validationResult;
+            }
         }
+        me.setState( {validationResult: validationResult, valIssue: valIssue});
         return validationResult;
     },
     formValue: {},
     render: function() {
         if( this.props.display === true ) {
             this.formValue = this.props.formValue;
-            debugger;
             return (
                 <form className="form-horizontal">
                     <div className="input-group">
@@ -206,8 +207,8 @@ var UserForm = React.createClass({
                         <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} />
                         <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} validate={this.validate} />
                         <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} validate={this.validate} />
-                        <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
-                            <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
+                        <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit} disabled={!this.state.validationResult}>
+                            <span className="glyphicon glyphicon-ok">Save</span>
                         </button>
                     </div>
                 </form>)
@@ -219,10 +220,10 @@ var UserForm = React.createClass({
 
 var TextField = React.createClass({
     valueChanged: function(e) {
+        this.props.data[this.props.k] = e.target.value;
         var validatable = {};
         validatable[this.props.k] = e.target.value;
         !this.props.validate || this.props.validate(validatable)
-        this.props.data[this.props.k] = e.target.value;
     },
     render: function() {
         var validationError = (this.props.validationError || '');
