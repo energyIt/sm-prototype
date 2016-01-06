@@ -80,8 +80,10 @@ var UserWrapper = React.createClass({
     componentDidMount: function() {
         this.loadData();
     },
-    onFormSubmit: function( data, mode ) {
-        debugger;
+    addNew: function() {
+        this.setState({displayForm: true, initialData: {}, mode: 'ADD'});
+    },
+    onFormSubmit: function( data, mode, form ) {
         var me = this;
         if( mode === 'ADD' ) {
             var url = 'api/userGroup';
@@ -107,11 +109,11 @@ var UserWrapper = React.createClass({
             },
             error: function() {
                 console.error('error during POST');
+            },
+            statusCode: {
+                400: me.handleBackendValidation( form )
             }
         })
-    },
-    addNew: function() {
-        this.setState({displayForm: true, initialData: {}, mode: 'ADD'});
     },
     onItemEdit: function( id ) {
         var me = this;
@@ -149,6 +151,14 @@ var UserWrapper = React.createClass({
             }
         })
     },
+    handleBackendValidation: function( form ) {
+        return function(data) {
+            form.applyValidation(false, _.reduce( JSON.parse(data.responseText).errors, function( memo, item ) {
+                memo[item.property] = item.message;
+                return memo;
+            }, {}));
+        }
+    },
     render: function() {
         return (
             <div>
@@ -172,42 +182,46 @@ var UserForm = React.createClass({
         return { valIssue: {}}
     },
     handleSubmit: function() {
-        this.props.onFormSubmit(this.formValue, this.props.mode);
+        this.props.onFormSubmit(this.formValue, this.props.mode, this);
     },
     validationRules: {
         'id': function(val) {
-            return {result: (val || '').length === 16, msg: 'Size has to be 16'};
+            return {result: (val || '').length === 3, msg: 'Size has to be 3 (to invoke backend validation)'};
         },
         'id2': function() { return { result: true } },
         'id3': function() { return { result: true } },
         'name': function() { return { result: true } }
     },
-    validate: function( changeMap ) {
-        var me = this;
+    validate: function() {
         var validationResult = true;
-        for( var key in changeMap ) {
-            var valResult = me.validationRules[key](changeMap[key]);
-            var valIssue = {};
-            valIssue[key] = valResult.result ? null : valResult.msg
-            me.setState( { valIssue: valIssue });
-            validationResult = valResult.result && validationResult;
+        var valIssue = {};
+        for( var key in this.formValue ) {
+            var validationRule = this.validationRules[key];
+            if( validationRule ) {
+                var valResult = validationRule(this.formValue[key]);
+                valIssue[key] = valResult.result ? null : valResult.msg
+                validationResult = valResult.result && validationResult;
+            }
         }
+        this.applyValidation(validationResult, valIssue);
         return validationResult;
+    },
+    applyValidation: function(validationResult, valIssue ) {
+        this.setState( {validationResult: validationResult, valIssue: valIssue});
     },
     formValue: {},
     render: function() {
         if( this.props.display === true ) {
             this.formValue = this.props.formValue;
-            debugger;
             return (
                 <form className="form-horizontal">
                     <div className="input-group">
                         <TextField label="ID" placeholder="id..." k="id" disabled={this.props.mode == 'EDIT'} data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id']}/>
-                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} />
+                        <TextField label="ID2" placeholder="id2..." k="id2" data={this.formValue} validate={this.validate} validationError={this.state.valIssue['id2']}/>
                         <TextField label="ID3" placeholder="id3..." k="id3" data={this.formValue} validate={this.validate} />
                         <TextField label="NAME" placeholder="name..." k="name" data={this.formValue} validate={this.validate} />
-                        <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit}>
-                            <span className="glyphicon glyphicon-ok" ng-transclude>Save</span>
+                        <button className="btn btn-success" type="button" title="Save" onClick={this.handleSubmit} disabled={!this.state.validationResult}>
+                            <span className="glyphicon glyphicon-ok">Save</span>
                         </button>
                     </div>
                 </form>)
@@ -219,10 +233,10 @@ var UserForm = React.createClass({
 
 var TextField = React.createClass({
     valueChanged: function(e) {
+        this.props.data[this.props.k] = e.target.value;
         var validatable = {};
         validatable[this.props.k] = e.target.value;
         !this.props.validate || this.props.validate(validatable)
-        this.props.data[this.props.k] = e.target.value;
     },
     render: function() {
         var validationError = (this.props.validationError || '');
